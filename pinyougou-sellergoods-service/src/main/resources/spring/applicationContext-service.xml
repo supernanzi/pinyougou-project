@@ -16,11 +16,11 @@
 
 	<!-- 指定dubbo的端口号,默认20880 -->
     <dubbo:protocol name="dubbo" port="20881"></dubbo:protocol>
-	<!-- dubbo提交服务的名称 -->
+	<!-- dubbo提交服务的应用名称 -->
 	<dubbo:application name="pinyougou-sellergoods-service"/>
-	<!-- url地址 -->
+	<!-- 注册中心的地址 -->
     <dubbo:registry address="zookeeper://192.168.25.130:2181"/>
-	<!-- 配置注解扫描的包-->
+	<!-- 扫描服务类所在的包-->
     <dubbo:annotation package="com.pinyougou.sellergoods.service.impl" />  
    
    
