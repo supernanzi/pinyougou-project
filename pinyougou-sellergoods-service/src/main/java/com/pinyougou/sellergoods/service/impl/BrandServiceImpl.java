@@ -10,10 +10,12 @@ import com.pinyougou.pojo.TbBrandExample;
 import com.pinyougou.pojo.TbBrandExample.Criteria;
 import com.pinyougou.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service  //使用Alibaba的@Service
+@Transactional //添加事务
 public class BrandServiceImpl implements BrandService {
 
     @Autowired
