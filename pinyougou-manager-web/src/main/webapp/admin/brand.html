@@ -19,121 +19,15 @@
 	<!-- 导入分页样式 -->
 	<link rel="stylesheet" href="../plugins/angularjs/pagination.css">
 
-	<script>
-        //初始化模块
-        var app = angular.module("pinyougou",['pagination']);
-        //初始化控制器
-        app.controller("brandctrl",function($scope,$http) {
+	<!-- 初始化模块 ,带分页-->
+	<script src="../js/base_pagination.js"></script>
+	<!-- 导入品牌服务层 -->
+	<script src="../js/service/brandService.js"></script>
+	<!-- 导入基本控制器 -->
+	<script src="../js/controller/baseController.js"></script>
+	<!-- 导入品牌控制器 -->
+	<script src="../js/controller/brandController.js"></script>
 
-            //分页插件
-            $scope.paginationConf = {
-                currentPage: 1,  				//当前页
-                totalItems: 10,					//总记录数
-                itemsPerPage: 10,				//每页记录数
-                perPageOptions: [10, 20, 30, 40, 50], //分页选项，下拉选择一页多少条记录
-                onChange: function () {			//页面变更后触发的方法
-                    //分页时基于条件查询
-                    $scope.search();		//启动就会调用分页组件
-                }
-            }
-            //分页查询
-            $scope.findPage = function () {
-                $http.get("../brand/findPage.do?pageNum=" + $scope.paginationConf.currentPage +
-                    "&pageSize=" + $scope.paginationConf.itemsPerPage).success(
-                    function (data) {
-                        //当前页数据
-                        $scope.list = data.list;
-                        //总记录数
-                        $scope.paginationConf.totalItems = data.total
-                    })
-            }
-
-            //根据ID查询品牌
-            $scope.findOne = function(id){
-                $http.get("../brand/findOne.do?id="+id).success(
-                    function(data){
-                        //查询到brand对象,将brand对象赋值给$scope.brand
-                        $scope.entity = data;
-                    }
-                )
-            }
-
-            //保存品牌数据
-			$scope.save = function(){
-                //定义变量接受方法名
-				var methodName = "";
-				//判断对象是否有id值
-				if($scope.entity.id == null){
-				    //没有id值,添加操作
-					methodName = "add.do";
-				}else{
-				    //有id值,修改操作
-					methodName = "update.do";
-				}
-                $http.post("../brand/"+methodName,$scope.entity).success(
-                    function(data){
-						//判断是否保存成功
-						if(data.success){
-							//成功,重新查询数据
-							$scope.findPage();
-						}else{
-						    //失败,弹出消息框
-							alert(data.message);
-						}
-					}
-				)
-			}
-
-			//定义保存ID的数组
-			$scope.selectIds = [];
-			$scope.updateSelection=function($event,id){
-			    //判断复选框勾选状态
-				if($event.target.checked){
-				    //勾选,添加到数组
-					$scope.selectIds.push(id);
-				}else{
-				    //取消勾选,移除数组
-					//通过传入id值获取数组索引
-					var index = $scope.selectIds.indexOf(id);
-					/**
-                     *		splice,移除元素.
-					 *				属性1:start: number   元素索引
-					 *				属性2:deleteCount?: number  元素个数
-                     */
-					$scope.selectIds.splice(index,1);
-				}
-				//测试是否添加成功,取消是否移除
-				//alert($scope.selectIds);
-			}
-			//批量删除
-			$scope.del = function(){
-			    $http.get("../brand/del.do?ids="+$scope.selectIds).success(
-			        function(data){
-						//判断是否删除成功
-						if(data.success){
-							$scope.findPage();//删除成功,查询分页
-						}else{
-						    alert(data.message);//删除失败,提示信息
-						}
-					}
-				)
-			}
-
-			//品牌搜索
-			$scope.searchEntity = {};//对searchEntity对象进行初始化
-			$scope.search=function(){
-			    $http.post("../brand/search.do?pageNum=" + $scope.paginationConf.currentPage +
-                    "&pageSize=" + $scope.paginationConf.itemsPerPage,$scope.searchEntity).success(
-			        function(data){
-			            //将条件查询的本页数据封装到list
-						$scope.list = data.list;
-						//将条件查询的总条数封装
-						$scope.paginationConf.totalItems = data.total;
-					}
-				)
-			}
-        })
-	</script>
 
 </head>
 <!-- 指定模块和控制器 -->
@@ -206,7 +100,7 @@
 
  </div>
 <!-- /.box-body -->
-         
+
 <!-- 编辑窗口 -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" >
@@ -215,25 +109,25 @@
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 			<h3 id="myModalLabel">品牌编辑</h3>
 		</div>
-		<div class="modal-body">		
+		<div class="modal-body">
 			<table class="table table-bordered table-striped"  width="800px">
 		      	<tr>
 		      		<td>品牌名称</td>
 		      		<td><input  class="form-control" placeholder="品牌名称" ng-model="entity.name">  </td>
-		      	</tr>		      	
+		      	</tr>
 		      	<tr>
 		      		<td>首字母</td>
 		      		<td><input  class="form-control" placeholder="首字母" ng-model="entity.firstChar"> </td>
-		      	</tr>		      	
-			 </table>				
+		      	</tr>
+			 </table>
 		</div>
-		<div class="modal-footer">						
+		<div class="modal-footer">
 			<button class="btn btn-success" data-dismiss="modal" aria-hidden="true" ng-click="save()">保存</button>
 			<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
 		</div>
 	  </div>
 	</div>
 </div>
-   
+
 </body>
 </html>
