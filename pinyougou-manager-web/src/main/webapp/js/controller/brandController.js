@@ -70,8 +70,8 @@ app.controller("brandctrl",function($scope,$controller,brandService) {
 
     //品牌搜索
     $scope.searchEntity = {};//对searchEntity对象进行初始化
-    $scope.search=function(){
-        brandService.search($scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage,$scope.searchEntity).success(
+    $scope.search=function(pageNum,pageSize){
+        brandService.search(pageNum,pageSize,$scope.searchEntity).success(
             function(data){
                 //将条件查询的本页数据封装到list
                 $scope.list = data.list;

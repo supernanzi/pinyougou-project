@@ -99,6 +99,12 @@
   <insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" >
     insert into tb_specification (id, spec_name)
     values (#{id,jdbcType=BIGINT}, #{specName,jdbcType=VARCHAR})
+
+    <!-- 插入数据,获得新插入数据的id -->
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+      SELECT LAST_INSERT_ID() AS id
+    </selectKey>
+
   </insert>
   <insert id="insertSelective" parameterType="com.pinyougou.pojo.TbSpecification" >
     insert into tb_specification
