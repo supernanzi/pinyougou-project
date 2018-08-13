@@ -1,6 +1,11 @@
 //品牌服务层
 app.service("brandService",function($http){
 
+    //查询所有
+    this.findAll = function(){
+        return $http.get("../brand/findAll.do");
+    }
+
     //分页查询_服务层
     this.findPage = function(pageNum,pageSize){
         return $http.get("../brand/findPage.do?pageNum=" + pageNum +
@@ -31,5 +36,10 @@ app.service("brandService",function($http){
     this.search = function(pageNum,pageSize,searchEntity){
         return $http.post("../brand/search.do?pageNum=" + pageNum +
             "&pageSize=" + pageSize,searchEntity)
+    }
+
+    //查询所有品牌显示在下拉框
+    this.selectOptionList = function(){
+        return $http.get("../brand/selectOptionList.do");
     }
 })

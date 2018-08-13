@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务实现层
@@ -129,7 +130,7 @@ public class SpecificationServiceImpl implements SpecificationService {
 	}
 	
 	
-		@Override
+	@Override
 	public PageResult findPage(TbSpecification specification, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		
@@ -146,5 +147,17 @@ public class SpecificationServiceImpl implements SpecificationService {
 		Page<TbSpecification> page= (Page<TbSpecification>)specificationMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+
+	/**
+	 *  查询所有规格显示在下拉框
+	 * @return
+	 */
+	@Override
+	public List<Map> selectOptionList() {
+		List<Map> specList = specificationMapper.selectOptionList();
+		return specList;
+	}
+
+
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 //@RestController == @ResponseBody + @Controller 返回Json格式数据
 @RestController
@@ -107,5 +108,14 @@ public class BrandController {
     @RequestMapping("/search")
     public PageInfo search(@RequestBody TbBrand brand,Integer pageNum,Integer pageSize){
         return brandService.findPage(brand,pageNum,pageSize);
+    }
+
+    /**
+     *  查询所有品牌显示在下拉框
+     * @return
+     */
+    @RequestMapping("/selectOptionList")
+    public List<Map> selectOptionList(){
+        return brandService.selectOptionList();
     }
 }

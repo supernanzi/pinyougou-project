@@ -40,4 +40,18 @@ app.controller("baseController",function($scope){
         //测试是否添加成功,取消是否移除
         //alert($scope.selectIds);
     }
+
+    //字符串转换JSON格式
+    $scope.getValueByKey = function (jsonString,key){
+        var jsonArray = JSON.parse(jsonString);
+        var value = "";
+        for(var i = 0;i < jsonArray.length ;i ++){
+            if(i>0){
+                value+=","+jsonArray[i][key];
+            }else{
+                value+=jsonArray[i][key];
+            }
+        }
+        return value;
+    }
 })

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service  //使用Alibaba的@Service
 @Transactional //添加事务
@@ -113,5 +114,15 @@ public class BrandServiceImpl implements BrandService {
         for (Long id : ids) {
             brandMapper.deleteByPrimaryKey(id);
         }
+    }
+
+    /**
+     *  查询所有品牌显示在下拉框
+     * @return
+     */
+    @Override
+    public List<Map> selectOptionList() {
+        List<Map> brands = brandMapper.selectOptionList();
+        return brands;
     }
 }
