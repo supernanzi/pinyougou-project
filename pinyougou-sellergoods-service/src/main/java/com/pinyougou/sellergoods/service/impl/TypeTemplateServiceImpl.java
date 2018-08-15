@@ -7,7 +7,7 @@ import com.pinyougou.mapper.TbTypeTemplateMapper;
 import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
-import com.pinyougou.service.TypeTemplateService;
+import com.pinyougou.sellergoods.service.TypeTemplateService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 

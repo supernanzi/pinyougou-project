@@ -3,7 +3,7 @@ package com.pinyougou.manager.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.group.Specification;
 import com.pinyougou.pojo.TbSpecification;
-import com.pinyougou.service.SpecificationService;
+import com.pinyougou.sellergoods.service.SpecificationService;
 import entity.PageResult;
 import entity.Result;
 import org.springframework.web.bind.annotation.RequestBody;
