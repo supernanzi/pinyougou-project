@@ -3,6 +3,8 @@ package com.pinyougou.sellergoods.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.group.Goods;
+import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbGoodsExample;
@@ -23,6 +25,9 @@ public class GoodsServiceImpl implements GoodsService {
 
 	@Autowired
 	private TbGoodsMapper goodsMapper;
+
+	@Autowired
+	private TbGoodsDescMapper goodsDescMapper;
 	
 	/**
 	 * 查询全部
@@ -46,8 +51,17 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 增加
 	 */
 	@Override
-	public void add(TbGoods goods) {
-		goodsMapper.insert(goods);		
+	public void add(Goods goods) {
+		//获得商品SPU
+		TbGoods tbGoods = goods.getGoods();
+		//设置商品状态
+		tbGoods.setAuditStatus("0");
+		//保存tbGoods
+		goodsMapper.insert(tbGoods);
+		//给商品详情赋ID值
+		goods.getGoodsDesc().setGoodsId(tbGoods.getId());
+		//保存tbGoodsDesc
+		goodsDescMapper.insert(goods.getGoodsDesc());
 	}
 
 	

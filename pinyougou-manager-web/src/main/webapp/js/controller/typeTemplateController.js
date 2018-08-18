@@ -103,7 +103,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
     }
 
 
-    //初始化尸体模板对象
+    //初始化实体模板对象
 	$scope.entity = {customAttributeItems : []}
     //新增扩展属性
     $scope.addRow = function () {

@@ -14,10 +14,20 @@
     <link rel="stylesheet" href="../css/style.css">
 	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
     <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
- 
+
+	<!-- 导入angularJS包 -->
+	<script src="../plugins/angularjs/angular.min.js"></script>
+	<!-- 初始化模块 -->
+	<script src="../js/base.js"></script>
+	<!-- 导入goods服务层 -->
+	<script src="../js/service/goodsService.js"></script>
+	<!-- 导入基本控制器 -->
+	<script src="../js/controller/baseController.js"></script>
+	<!-- 导入goods控制器 -->
+	<script src="../js/controller/goodsController.js"></script>
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" >
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController">
   <!-- .box-body -->
                 
                     <div class="box-header with-border">

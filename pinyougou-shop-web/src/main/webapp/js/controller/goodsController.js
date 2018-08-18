@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -32,18 +32,22 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 	}
 	
 	//保存 
-	$scope.save=function(){				
-		var serviceObject;//服务层对象  				
-		if($scope.entity.id!=null){//如果有ID
-			serviceObject=goodsService.update( $scope.entity ); //修改  
-		}else{
-			serviceObject=goodsService.add( $scope.entity  );//增加 
-		}				
-		serviceObject.success(
+	$scope.save=function(){
+		//提取kindEditor中的内容到goodsDesc的introduction
+        $scope.entity.goodsDesc.introduction=editor.html();
+		// var serviceObject;//服务层对象
+		// if($scope.entity.id!=null){//如果有ID
+		// 	serviceObject=goodsService.update( $scope.entity ); //修改
+		// }else{
+		// 	serviceObject=goodsService.add( $scope.entity  );//增加
+		// }
+		goodsService.add($scope.entity).success(
 			function(response){
 				if(response.success){
-					//重新查询 
-		        	$scope.reloadList();//重新加载
+					//保存完毕,清空输入信息
+		        	$scope.entity = {};
+		        	//清空富文本编辑器
+		        	editor.html("");
 				}else{
 					alert(response.message);
 				}
@@ -76,5 +80,49 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 			}			
 		);
 	}
-    
+
+    //初始化组合实体类对象v
+    $scope.entity={goods:{},goodsDesc:{},items:[]}
+	//查询一级分类
+	$scope.selectItemCatList=function(){
+		itemCatService.findByParentId(0).success(
+			function(response){
+				$scope.itemCat1List = response;
+			}
+		)
+	}
+	//查询二级分类
+	$scope.$watch("entity.goods.category1Id",function(newValue,oldValue){
+		itemCatService.findByParentId(newValue).success(
+			function(response){
+				$scope.itemCat2List = response;
+			}
+		)
+	})
+	//查询三级分类
+	$scope.$watch("entity.goods.category2Id",function(newValue,oldValue){
+		itemCatService.findByParentId(newValue).success(
+			function(response){
+				$scope.itemCat3List = response;
+			}
+		)
+	})
+	//三级分类选择后,读取模板ID
+	$scope.$watch("entity.goods.category3Id",function(newValue,oldValue){
+		itemCatService.findOne(newValue).success(
+			function(response){
+				$scope.entity.goods.typeTemplateId=response.typeId;
+			}
+		)
+	})
+
+    //模板ID选择后,更新品牌列表
+    $scope.$watch("entity.goods.typeTemplateId",function(newValue,oldValue){
+        typeTemplateService.findOne(newValue).success(
+            function(response){
+                //将typeTemplate表中的brandIds字符串转换成品牌列表
+                $scope.brandList = JSON.parse(response.brandIds);
+            }
+        )
+    })
 });	
