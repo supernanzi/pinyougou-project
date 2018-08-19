@@ -54,4 +54,15 @@ app.controller("baseController",function($scope){
         }
         return value;
     }
+
+    //从集合中按照 key 查询对象
+    $scope.searchObjectByKey=function(list,key,keyValue){
+        for (var i = 0 ; i < list.length ; i++) {
+            //得到每一个元素,根据key值获得value,与传入的keyValue比较
+            if(list[i][key] == keyValue){
+                return list[i];
+            }
+        }
+        return null;
+    }
 })
