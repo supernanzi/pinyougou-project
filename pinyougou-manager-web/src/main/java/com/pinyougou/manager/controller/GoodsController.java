@@ -1,4 +1,4 @@
-package com.pinyougou.shop.controller;
+package com.pinyougou.manager.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.group.Goods;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
 /**
  * controller
  * @author Administrator
@@ -89,7 +90,7 @@ public class GoodsController {
 	}
 	
 	/**
-	 * 批量删除
+	 * 批量删除,修改商品的is_delete属性为1
 	 * @param ids
 	 * @return
 	 */
@@ -104,8 +105,8 @@ public class GoodsController {
 		}
 	}
 	
-		/**
-	 * 查询+分页  只查询当前商家的商品
+	/**
+	 * 查询+分页  查询所有商家的所有商品
 	 * @param goods
 	 * @param page
 	 * @param rows
@@ -113,40 +114,22 @@ public class GoodsController {
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
-		//获取商家ID
-		String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
-		//添加条件查询
-		goods.setSellerId(sellerId);
 		return goodsService.findPage(goods, page, rows);		
 	}
 
 	/**
-	 * 	商家批量提交商品审核
+	 * 	批量修改商品审核状态
 	 * @param ids
+	 * @param auditStatus		商品审核状态
 	 */
 	@RequestMapping("/updateAuditStatus")
-	public Result updateAuditStatus(Long[] ids){
+	public Result updateAuditStatus(Long[] ids,String auditStatus){
 		try {
-			goodsService.updateauditStatus(ids,"1");
-			return new Result(true,"提交审核成功,请耐心等待");
+			goodsService.updateauditStatus(ids,auditStatus);
+			return new Result(true,"审核状态更改成功");
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new Result(false,"提交审核失败,请稍后重试");
-		}
-	}
-
-	/**
-	 * 	商家批量上下架
-	 * @param ids
-	 */
-	@RequestMapping("/updateIsMarketable")
-	public Result updateIsMarketable(Long[] ids,String isMarketable){
-		try {
-			goodsService.updateIsMarketable(ids,isMarketable);
-			return new Result(true,"商品上架成功");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new Result(false,"商品上架失败,请稍后重试");
+			return new Result(false,"审核状态更改失败");
 		}
 	}
 }

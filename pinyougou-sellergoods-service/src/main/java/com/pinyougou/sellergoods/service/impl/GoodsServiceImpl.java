@@ -171,21 +171,30 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
-			goodsMapper.deleteByPrimaryKey(id);
+			//首先根据ID查询出商品
+			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+			//设置商品的is_delete属性
+			goods.setIsDelete("1");
+			//更新商品状态
+			goodsMapper.updateByPrimaryKey(goods);
 		}		
 	}
 	
 	
-		@Override
+	@Override
 	public PageResult findPage(TbGoods goods, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		
 		TbGoodsExample example=new TbGoodsExample();
 		Criteria criteria = example.createCriteria();
-		
+		//分页查询,添加条件,id_delete属性值为null
+		criteria.andIsDeleteIsNull();//过滤删除的商品
+
 		if(goods!=null){			
-						if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
-				criteria.andSellerIdLike("%"+goods.getSellerId()+"%");
+			if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
+				//criteria.andSellerIdLike("%"+goods.getSellerId()+"%");
+				//修改条件,修改模糊查询为精确匹配
+				criteria.andSellerIdEqualTo(goods.getSellerId());
 			}
 			if(goods.getGoodsName()!=null && goods.getGoodsName().length()>0){
 				criteria.andGoodsNameLike("%"+goods.getGoodsName()+"%");
@@ -214,5 +223,43 @@ public class GoodsServiceImpl implements GoodsService {
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	/**
+	 * 	批量修改商品审核状态
+	 * @param ids
+	 * @param auditStatus		商品审核状态
+	 */
+	@Override
+	public void updateauditStatus(Long[] ids, String auditStatus) {
+		for (Long id : ids) {
+			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+			goods.setAuditStatus(auditStatus);			//设置商品审核状态,
+			if("2".equals(auditStatus)){
+				//设置商品上架状态为0
+				goods.setIsMarketable("0");
+			}
+			goodsMapper.updateByPrimaryKey(goods);
+		}
+	}
+
+	/**
+	 * 	商家批量上下架商品
+	 * @param ids
+	 * @param isMarketable		商品上架状态
+	 */
+	@Override
+	public void updateIsMarketable(Long[] ids, String isMarketable) {
+		for (Long id : ids) {
+			//通过id查询每一个商品
+			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+			//判断商品的审核状态
+			if("2".equals(goods.getAuditStatus())){	//审核通过
+				//设置商品上架
+				goods.setIsMarketable(isMarketable);
+				//更新商品
+				goodsMapper.updateByPrimaryKey(goods);
+			}
+		}
+	}
+
 }

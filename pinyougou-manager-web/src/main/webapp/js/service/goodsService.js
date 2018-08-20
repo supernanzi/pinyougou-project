@@ -29,12 +29,8 @@ app.service('goodsService',function($http){
 	this.search=function(page,rows,searchEntity){
 		return $http.post('../goods/search.do?page='+page+"&rows="+rows, searchEntity);
 	}
-    //商家批量提交商品审核
-    this.updateAuditStatus=function(ids){
-        return $http.get("../goods/updateAuditStatus.do?ids="+ids);
-    }
-    //商家批量上下架
-	this.updateIsMarketable=function(ids,isMarketable){
-		return $http.get("../goods/updateIsMarketable.do?ids="+ids+"&isMarketable="+isMarketable);
+	//批量修改商品审核状态
+	this.updateAuditStatus=function(ids,auditStatus){
+		return $http.get("../goods/updateAuditStatus.do?ids="+ids+"&auditStatus="+auditStatus);
 	}
 });

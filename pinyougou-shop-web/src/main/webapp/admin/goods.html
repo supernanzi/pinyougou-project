@@ -17,17 +17,26 @@
 
 	<!-- 导入angularJS包 -->
 	<script src="../plugins/angularjs/angular.min.js"></script>
+	<!-- 分页组件开始 -->
+	<script src="../plugins/angularjs/pagination.js"></script>
+	<link rel="stylesheet" href="../plugins/angularjs/pagination.css">
 	<!-- 初始化模块 -->
-	<script src="../js/base.js"></script>
+	<script src="../js/base_pagination.js"></script>
 	<!-- 导入goods服务层 -->
 	<script src="../js/service/goodsService.js"></script>
+	<!-- 导入typeTemplate服务层-->
+	<script src="../js/service/typeTemplateService.js"></script>
+	<!-- 导入uploadFile服务层 -->
+	<script src="../js/service/uploadService.js"></script>
+	<!-- 导入item服务层 -->
+	<script src="../js/service/itemCatService.js"></script>
 	<!-- 导入基本控制器 -->
 	<script src="../js/controller/baseController.js"></script>
 	<!-- 导入goods控制器 -->
 	<script src="../js/controller/goodsController.js"></script>
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="goodsController" ng-init="findItemCatList()">
   <!-- .box-body -->
                 
                     <div class="box-header with-border">
@@ -43,9 +52,11 @@
                             <div class="pull-left">
                                 <div class="form-group form-inline">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-default" title="新建" ><i class="fa fa-file-o"></i> 新建</button>
-                                        <button type="button" class="btn btn-default" title="删除" ><i class="fa fa-trash-o"></i> 删除</button>
-                                        <button type="button" class="btn btn-default" title="提交审核" ><i class="fa fa-check"></i> 提交审核</button>
+                                        <button type="button" class="btn btn-default" href="goods_edit.html" title="新建" ><i class="fa fa-file-o"></i> 新建</button>
+                                        <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i class="fa fa-trash-o"></i> 删除</button>
+                                        <button type="button" class="btn btn-default" title="提交审核" ng-click="updateAuditStatus()"><i class="fa fa-check"></i> 提交审核</button>
+                                        <button type="button" class="btn btn-default" title="上架" ng-click="updateIsMarketable(1)"><i class="fa fa-check"></i> 上架</button>
+                                        <button type="button" class="btn btn-default" title="下架" ng-click="updateIsMarketable(0)"><i class="fa fa-check"></i> 下架</button>
                                         <button type="button" class="btn btn-default" title="屏蔽" onclick='confirm("你确认要屏蔽吗？")'><i class="fa fa-ban"></i> 屏蔽</button>
                                         <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新</button>
                                     </div>
@@ -53,15 +64,15 @@
                             </div>
                             <div class="box-tools pull-right">
                                 <div class="has-feedback">
-                                  状态：<select>
+                                  状态：<select ng-model="searchEntity.auditStatus">
                                          	<option value="">全部</option>      
                                          	<option value="0">未申请</option>    
                                          	<option value="1">申请中</option>    
-                                         	<option value="2">审核通过</option>    
+                                         	<option value="2">审核通过</option>
                                          	<option value="3">已驳回</option>                                     
                                         </select>
-							                  商品名称：<input >									
-									<button class="btn btn-default" >查询</button>                                    
+							                  商品名称：<input ng-model="searchEntity.goodsName">
+									<button class="btn btn-default" ng-click="reloadList()">查询</button>
                                 </div>
                             </div>
                             <!--工具栏/-->
@@ -84,30 +95,24 @@
 			                          </tr>
 			                      </thead>
 			                      <tbody>
-			                          <tr>
-			                              <td><input  type="checkbox"></td>			                              
-				                          <td>1</td>
-									      <td>小米6S手机</td>
-									      <td>1090</td>
-									      <td>数码</td>
-									      <td>手机</td>
-									      <td>国产手机</td>
+			                          <tr ng-repeat="goods in list">
+			                              <td><input  type="checkbox" ng-click="updateSelection($event,goods.id);isAudit($event,goods.auditStatus)"></td>
+				                          <td>{{goods.id}}</td>
+									      <td>{{goods.goodsName}}</td>
+									      <td>{{goods.price}}</td>
+									      <td>{{itemCatList[goods.category1Id]}}</td>
+									      <td>{{itemCatList[goods.category2Id]}}</td>
+									      <td>{{itemCatList[goods.category3Id]}}</td>
 		                                  <td>
 		                                  	<span>
-		                                  		未申请
-		                                  	</span>
-		                                  	<span >
-		                                  		申请中
-		                                  	</span>
-		                                  	<span>
-		                                  		审核通过
-		                                  	</span>
-		                                  	<span>
-		                                  		已驳回
+		                                  		{{status[goods.auditStatus]}}
 		                                  	</span>
 		                                  </td>		                                  
-		                                  <td class="text-center">                                          
-		                                 	  <button type="button" class="btn bg-olive btn-xs">修改</button>                  
+		                                  <td class="text-center">
+											  <span ng-if="goods.auditStatus == 2">
+		                                 	  		<button type="button" class="btn bg-olive btn-xs" ng-click="selectIds.push(goods.id);updateIsMarketable(goods.isMarketable==0?1:0)">{{goods.isMarketable==0?"上架":"下架"}}</button>
+											  </span>
+		                                 	  <button type="button" class="btn bg-olive btn-xs">修改</button>
 		                                  </td>
 			                          </tr>
 			                      </tbody>
@@ -117,7 +122,9 @@
 							 
                         </div>
                         <!-- 数据表格 /-->
-                        
+
+						<!--分页插件-->
+						<tm-pagination conf="paginationConf"></tm-pagination>
                         
                      </div>
                     <!-- /.box-body -->

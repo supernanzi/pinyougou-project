@@ -47,7 +47,7 @@ public interface GoodsService {
 	
 	
 	/**
-	 * 批量删除
+	 * 批量删除 ,修改商品的is_delete属性为1
 	 * @param ids
 	 */
 	public void delete(Long[] ids);
@@ -59,5 +59,18 @@ public interface GoodsService {
 	 * @return
 	 */
 	public PageResult findPage(TbGoods goods, int pageNum, int pageSize);
-	
+
+	/**
+	 * 	批量修改商品审核状态
+	 * @param ids
+	 * @param auditStatus		商品审核状态
+	 */
+	public void updateauditStatus(Long[] ids,String auditStatus);
+
+	/**
+	 * 		商家批量上下架商品
+	 * @param ids
+	 * @param isMarketable	上架状态
+	 */
+    public void updateIsMarketable(Long[] ids, String isMarketable);
 }

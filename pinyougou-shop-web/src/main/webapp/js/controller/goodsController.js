@@ -22,6 +22,9 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 			}			
 		);
 	}
+
+	//定义数组,保存商品状态
+	$scope.status = ["未申请","申请中","审核通过","已驳回"];
 	
 	//查询实体 
 	$scope.findOne=function(id){				
@@ -58,16 +61,24 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 	
 	 
 	//批量删除 
-	$scope.dele=function(){			
-		//获取选中的复选框			
-		goodsService.dele( $scope.selectIds ).success(
-			function(response){
-				if(response.success){
-					$scope.reloadList();//刷新列表
-					$scope.selectIds=[];
-				}						
-			}		
-		);				
+	$scope.dele=function(){
+		//判断勾选数组是否为空
+		if($scope.selectIds.length>0) {
+			if(confirm("你确认要删除吗？")){
+            	//获取选中的复选框
+				goodsService.dele($scope.selectIds).success(
+					function (response) {
+						if (response.success) {
+							alert("删除成功");
+							$scope.reloadList();//刷新列表
+							$scope.selectIds = [];
+						}
+					}
+				);
+       		 }
+		}else{
+            alert("请至少勾选一个");
+        }
 	}
 	
 	$scope.searchEntity={};//定义搜索对象 
@@ -94,44 +105,52 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 	}
 	//查询二级分类
 	$scope.$watch("entity.goods.category1Id",function(newValue,oldValue){
-		itemCatService.findByParentId(newValue).success(
-			function(response){
-				$scope.itemCat2List = response;
-			}
-		)
+		if(newValue != oldValue) {
+            itemCatService.findByParentId(newValue).success(
+                function (response) {
+                    $scope.itemCat2List = response;
+                }
+            )
+        }
 	})
 	//查询三级分类
 	$scope.$watch("entity.goods.category2Id",function(newValue,oldValue){
-		itemCatService.findByParentId(newValue).success(
-			function(response){
-				$scope.itemCat3List = response;
-			}
-		)
+        if(newValue != oldValue) {
+            itemCatService.findByParentId(newValue).success(
+                function (response) {
+                    $scope.itemCat3List = response;
+                }
+            )
+        }
 	})
 	//三级分类选择后,读取模板ID
 	$scope.$watch("entity.goods.category3Id",function(newValue,oldValue){
-		itemCatService.findOne(newValue).success(
-			function(response){
-				$scope.entity.goods.typeTemplateId=response.typeId;
-			}
-		)
+        if(newValue != oldValue) {
+            itemCatService.findOne(newValue).success(
+                function (response) {
+                    $scope.entity.goods.typeTemplateId = response.typeId;
+                }
+            )
+        }
 	})
     //模板ID选择后,更新品牌列表
     $scope.$watch("entity.goods.typeTemplateId",function(newValue,oldValue){
-        typeTemplateService.findOne(newValue).success(
-            function(response){
-                //将typeTemplate表中的brandIds字符串转换成品牌列表
-                $scope.brandList = JSON.parse(response.brandIds);
-                //查询商品的扩展属性
-				$scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
-            }
-        );
-        //通过模板id查询规格和规格选项
-		typeTemplateService.findSpecList(newValue).success(
-			function(response){
-				$scope.specList = response;
-			}
-		)
+        if(newValue != oldValue) {
+            typeTemplateService.findOne(newValue).success(
+                function (response) {
+                    //将typeTemplate表中的brandIds字符串转换成品牌列表
+                    $scope.brandList = JSON.parse(response.brandIds);
+                    //查询商品的扩展属性
+                    $scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
+                }
+            );
+            //通过模板id查询规格和规格选项
+            typeTemplateService.findSpecList(newValue).success(
+                function (response) {
+                    $scope.specList = response;
+                }
+            )
+        }
     })
 
 	//文件上传
@@ -244,5 +263,75 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 			}
 		}
 		return newItems;
+	}
+
+	//商品分类名称显示
+	$scope.itemCatList = [];//商品分类列表
+	$scope.findItemCatList = function(){
+		itemCatService.findAll().success(
+            //得到一个保存TbItemCat对象的集合,转成数组 id值作为索引,
+            function(response){
+                for (var i = 0; i < response.length; i++) {
+                	//得到每一个对象,id值作为索引,那么值作为索引对应的元素
+                    $scope.itemCatList[response[i].id]  = response[i].name;
+                }
+			}
+		)
+	}
+
+    //商家批量提交商品审核
+    $scope.updateAuditStatus=function(){
+		if($scope.selectIds.length>0) {		//判断勾选框是否勾选
+            goodsService.updateAuditStatus($scope.selectIds).success(
+                function (response) {
+                    if (response.success) {//成功
+                        $scope.reloadList();//刷新列表
+                        $scope.selectIds = [];//清空ids集合
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            )
+        }else{
+			alert("请至少勾选一个");
+		}
+    }
+
+    //定义保存审核状态数值
+    $scope.auditStatus = 0;
+    //根据复选框勾选情况添加到数值,用来判断数组中是否都是通过审核
+    $scope.isAudit=function($event,auditStatus){
+        //判断复选框勾选状态
+        if($event.target.checked){
+            //勾选,添加到数值
+            $scope.auditStatus += auditStatus;
+        }else{
+            //取消勾选,移除数组
+            $scope.auditStatus -= auditStatus;
+        }
+    }
+    //商家批量上下架商品
+	$scope.updateIsMarketable=function(isMarketable){
+        if($scope.selectIds.length>0) {		//判断勾选框是否勾选
+			if($scope.auditStatus%2==0) {		//判断勾选框是否包含未审核商品
+                goodsService.updateIsMarketable($scope.selectIds, isMarketable).success(
+                    function (response) {
+                        if (response.success) {//成功
+                            $scope.reloadList();//刷新列表
+                            $scope.selectIds = [];//清空ids集合
+                            $scope.auditStatus = 0;//清空审核状态值
+                        } else {
+                            alert(response.message);
+                            $scope.auditStatus = 0;//清空审核状态值
+                        }
+                    }
+                )
+            }else{
+				alert("勾选中包含未审核商品,请重新勾选");
+                $scope.selectIds = [];//清空ids集合
+			}
+        }else{
+            alert("请至选择一个商品");
+		}
 	}
 });	
