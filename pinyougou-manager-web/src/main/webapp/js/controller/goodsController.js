@@ -100,15 +100,19 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 
 	//运营商批量修改商品审核状态
 	$scope.updateAuditStatus=function(auditStatus){
-		goodsService.updateAuditStatus($scope.selectIds,auditStatus).success(
-			function(response){
-				if(response.success){//成功
-					$scope.reloadList();//刷新列表
-					$scope.selectIds = [];//清空id集合
-				}else{
-					alert(response.message);
-				}
-			}
-		)
+        if($scope.selectIds.length>0) {
+            goodsService.updateAuditStatus($scope.selectIds, auditStatus).success(
+                function (response) {
+                    if (response.success) {//成功
+                        $scope.reloadList();//刷新列表
+                        $scope.selectIds = [];//清空id集合
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            )
+        }else{
+        	alert("请至少勾选一个");
+		}
 	}
 });	

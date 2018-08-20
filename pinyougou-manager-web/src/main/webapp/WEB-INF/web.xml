@@ -55,5 +55,5 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:spring/spring-security.xml</param-value>
 	</context-param>
-	
+
 </web-app>

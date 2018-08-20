@@ -313,7 +313,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
     //商家批量上下架商品
 	$scope.updateIsMarketable=function(isMarketable){
         if($scope.selectIds.length>0) {		//判断勾选框是否勾选
-			if($scope.auditStatus%2==0) {		//判断勾选框是否包含未审核商品
+			if($scope.auditStatus/2==$scope.selectIds.length) {		//判断勾选框是否包含未审核商品
                 goodsService.updateIsMarketable($scope.selectIds, isMarketable).success(
                     function (response) {
                         if (response.success) {//成功
