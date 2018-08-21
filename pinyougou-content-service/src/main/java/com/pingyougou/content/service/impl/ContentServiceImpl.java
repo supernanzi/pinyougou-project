@@ -10,6 +10,7 @@ import com.pinyougou.pojo.TbContentExample;
 import com.pinyougou.pojo.TbContentExample.Criteria;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 
@@ -23,6 +24,10 @@ public class ContentServiceImpl implements ContentService {
 
 	@Autowired
 	private TbContentMapper contentMapper;
+
+	//注入redisTemplate类
+	@Autowired
+	private RedisTemplate redisTemplate;
 	
 	/**
 	 * 查询全部
@@ -47,7 +52,10 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public void add(TbContent content) {
-		contentMapper.insert(content);		
+
+		contentMapper.insert(content);
+		//新增广告后,根据父ID删除缓存
+		redisTemplate.boundHashOps("centent").delete(content.getCategoryId());
 	}
 
 	
@@ -56,6 +64,10 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public void update(TbContent content){
+
+		//查询修改前的分类 Id
+		Long categoryId =contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
+		redisTemplate.boundHashOps("content").delete(categoryId);
 		contentMapper.updateByPrimaryKey(content);
 	}	
 	
@@ -75,6 +87,10 @@ public class ContentServiceImpl implements ContentService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
+
+			//清楚缓存
+			Long categoryId =contentMapper.selectByPrimaryKey(id).getCategoryId();
+			redisTemplate.boundHashOps("content").delete(categoryId);
 			contentMapper.deleteByPrimaryKey(id);
 		}		
 	}
@@ -88,7 +104,7 @@ public class ContentServiceImpl implements ContentService {
 		Criteria criteria = example.createCriteria();
 		
 		if(content!=null){			
-						if(content.getTitle()!=null && content.getTitle().length()>0){
+			if(content.getTitle()!=null && content.getTitle().length()>0){
 				criteria.andTitleLike("%"+content.getTitle()+"%");
 			}
 			if(content.getUrl()!=null && content.getUrl().length()>0){
@@ -114,16 +130,26 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public List<TbContent> findByCategoryId(long categoryId) {
-		//创建TbContentExample对象
-		TbContentExample example = new TbContentExample();
-		//获得条件封装对象
-		Criteria criteria = example.createCriteria();
-		//添加条件
-		criteria.andCategoryIdEqualTo(categoryId);//添加分类ID
-		criteria.andStatusEqualTo("1");		//添加条件 状态为1
-		example.setOrderByClause("sort_order");	//根据sort_order排序,默认升序 asc
+		//首先从redis缓存中取数据
+		List<TbContent> contentList = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+		//判断集合是否为空
+		if(contentList == null) {
+			//创建TbContentExample对象
+			TbContentExample example = new TbContentExample();
+			//获得条件封装对象
+			Criteria criteria = example.createCriteria();
+			//添加条件
+			criteria.andCategoryIdEqualTo(categoryId);//添加分类ID
+			criteria.andStatusEqualTo("1");        //添加条件 状态为1
+			example.setOrderByClause("sort_order");    //根据sort_order排序,默认升序 asc
+			contentList = contentMapper.selectByExample(example);
+			//将查询到的列表存入缓存
+			redisTemplate.boundHashOps("content").put(categoryId,contentList);
+		}else{
+			System.out.println("从缓存中查询数据");
+		}
 
-		return contentMapper.selectByExample(example);
+		return contentList;
 	}
 
 }
