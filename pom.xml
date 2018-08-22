@@ -19,6 +19,9 @@
         <module>pinyougou-content-interface</module>
         <module>pinyougou-content-service</module>
         <module>pinyougou-portal-web</module>
+        <module>pinyougou-solr-utils</module>
+        <module>pinyougou-search-interface</module>
+        <module>pinyougou-search-service</module>
     </modules>
 
     <!-- 集中定义依赖版本号 -->
