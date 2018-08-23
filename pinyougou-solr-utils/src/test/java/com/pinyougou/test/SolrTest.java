@@ -1,5 +1,6 @@
 package com.pinyougou.test;
 
+import com.pinyougou.solrutil.RedisManager;
 import com.pinyougou.solrutil.SolrUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +14,17 @@ public class SolrTest {
 
     @Autowired
     private SolrUtil solrUtil;
+    @Autowired
+    private RedisManager redisManager;
 
     @Test
     public void dataImport(){
         solrUtil.dataImport();
+    }
+
+    @Test
+    public void redis(){
+        redisManager.initBrandList();
+        redisManager.initSpecList();
     }
 }
