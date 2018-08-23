@@ -355,6 +355,8 @@
 						<li class="yui3-u-1-5" ng-repeat="item in resultMap.rows">
 							<div class="list-wrap">
 								<div class="p-img">
+									<!-- ng-bind-html 指令用于显示 html 内容
+											竖线 |用于调用过滤器-->
 									<a href="item.html" target="_blank"><img src="{{item.image}}" /></a>
 								</div>
 								<div class="price">
@@ -363,8 +365,8 @@
 											<i>{{item.price}}</i>
 										</strong>
 								</div>
-								<div class="attr">
-									<em>{{item.title}}</em>
+								<div class="attr" ng-bind-html="item.title | trustHtml">
+
 								</div>
 								<div class="cu">
 									<em><span>促</span>满一件可参加超值换购</em>
