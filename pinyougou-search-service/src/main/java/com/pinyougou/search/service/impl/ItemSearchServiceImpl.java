@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(timeout = 5000)//设置超时时间
 public class ItemSearchServiceImpl implements ItemSearchService {
 
     @Autowired
@@ -40,6 +40,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             List<Map> specList = (List<Map>)redisTemplate.boundHashOps("specList").get(categoryList.get(0));
             map.put("specList",specList);
         }
+
         return map;
     }
 
@@ -62,8 +63,46 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 
         //添加查询条件
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
-        //query对象添加查询条件
+        //query对象添加关键字查询条件
         query.addCriteria(criteria);
+
+
+        //添加分类条件,判断是否有分类条件
+        if(searchMap.get("category")!=null && !"".equals(searchMap.get("category"))){
+            Criteria categoryCriteria = new Criteria("item_category").is(searchMap.get("category"));
+            FilterQuery categoryQuery = new SimpleFilterQuery(categoryCriteria);
+            query.addFilterQuery(categoryQuery);
+        }
+        //添加品牌条件,判断是否有品牌条件
+        if(searchMap.get("brand")!=null && !"".equals(searchMap.get("brand"))){
+            Criteria brandCriteria = new Criteria("item_brand").is(searchMap.get("brand"));
+            FilterQuery brandQuery = new SimpleFilterQuery(brandCriteria);
+            query.addFilterQuery(brandQuery);
+        }
+        //添加规格条件,判断是否有规格条件
+        if(searchMap.get("spec")!=null){
+            Map<String,String> specMap = (Map)searchMap.get("spec");
+            for (String key : specMap.keySet()) {
+                Criteria optionCriteria = new Criteria("item_spec_"+key).is(specMap.get(key));
+                FilterQuery optionQuery = new SimpleFilterQuery(optionCriteria);
+                query.addFilterQuery(optionQuery);
+            }
+        }
+        //添加价格条件,判断是否有价格条件
+        if(searchMap.get("price")!=null && !"".equals(searchMap.get("price"))){
+            //拿到字符串切割
+            String[] prices = searchMap.get("price").toString().split("-");
+            if(!"*".equals(prices[1])) {
+                Criteria priceCriteria = new Criteria("item_price").between(prices[0], prices[1]);
+                FilterQuery priceQuery = new SimpleFilterQuery(priceCriteria);
+                query.addFilterQuery(priceQuery);
+            }else{
+                Criteria priceCriteria = new Criteria("item_price").greaterThanEqual(prices[0]);
+                FilterQuery priceQuery = new SimpleFilterQuery(priceCriteria);
+                query.addFilterQuery(priceQuery);
+            }
+        }
+
 
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
 
