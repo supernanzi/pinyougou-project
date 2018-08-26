@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 真正可以产生 Connection 的 ConnectionFactory，由对应的 JMS 服务厂商提供-->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.25.130:61616"/>
+    </bean>
+    <!-- Spring 用于管理真正的 ConnectionFactory 的 ConnectionFactory -->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!-- 目标 ConnectionFactory 对应真实的可以产生 JMS Connection 的 ConnectionFactory -->
+        <property name="targetConnectionFactory" ref="targetConnectionFactory"/>
+    </bean>
+    <!-- Spring 提供的 JMS 工具类，它可以进行消息发送、接收等 -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <!-- 这个 connectionFactory 对应的是我们定义的 Spring 提供的那个 ConnectionFactory对象 -->
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+
+    <!--这个是队列目的地，点对点的  文本信息-->
+    <bean id="addItemSolrDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="add_item_solr"/>
+    </bean>
+    <!-- 我的监听类 -->
+    <bean id="myMessageListener" class="com.pinyougou.search.listener.AddItemSolrMessageListener"></bean>
+    <!-- 消息监听容器 -->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!-- 配置连接ActiveMQ  -->
+        <property name="connectionFactory" ref="connectionFactory" />
+        <!-- 监听或消费的队列名称 -->
+        <property name="destination" ref="addItemSolrDestination" />
+        <!-- 指定监听类 监听消息 -->
+        <property name="messageListener" ref="myMessageListener" />
+    </bean>
+
+
+    <!--这个是队列目的地，点对点的 文本信息-->
+    <bean id="delItemSolrDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="del_item_solr"/>
+    </bean>
+    <!-- 我的监听类 -->
+    <bean id="delMessageListener" class="com.pinyougou.search.listener.DelItemSolrMessageListener"></bean>
+    <!-- 消息监听容器 -->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!-- 配置连接ActiveMQ  -->
+        <property name="connectionFactory" ref="connectionFactory" />
+        <!-- 监听或消费的队列名称 -->
+        <property name="destination" ref="delItemSolrDestination" />
+        <!-- 指定监听类 监听消息 -->
+        <property name="messageListener" ref="delMessageListener" />
+    </bean>
+</beans>

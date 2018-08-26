@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbItem;
 import com.pinyougou.service.ItemSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
@@ -103,6 +104,26 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             }
         }
 
+        //添加排序条件
+        String sortValue = (String) searchMap.get("sort");       //排序方式
+        String sortField = (String)searchMap.get("sortField");//排序字段
+        if(sortField != null && !"".equals(sortField)){
+            if(sortValue.equals("ASC")){
+                //参数1：排序规则	参数2：排序字段
+                Sort sort=new Sort(Sort.Direction.ASC, "item_"+sortField);
+                query.addSort(sort);
+            }
+            if(sortValue.equals("DESC")){
+                Sort sort=new Sort(Sort.Direction.DESC, "item_"+sortField);
+                query.addSort(sort);
+            }
+        }
+
+        //7分页条件设置
+        Integer pageNo = (Integer) searchMap.get("pageNo");
+        Integer pageSize = (Integer) searchMap.get("pageSize");
+        query.setOffset((pageNo-1)*pageSize);//查询起始值
+        query.setRows(pageSize);//每页记录数
 
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
 
@@ -124,6 +145,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
 
         map.put("rows",page.getContent());
+        map.put("pageNo", pageNo);//当前页
+        map.put("totalPages", page.getTotalPages());//总页数
         return map;
     }
 

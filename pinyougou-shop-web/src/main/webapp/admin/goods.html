@@ -96,7 +96,7 @@
 			                      </thead>
 			                      <tbody>
 			                          <tr ng-repeat="goods in list">
-			                              <td><input  type="checkbox" ng-click="updateSelection($event,goods.id);isAudit($event,goods.auditStatus)"></td>
+			                              <td><input  type="checkbox" ng-click="updateSelection($event,goods.id)"></td>
 				                          <td>{{goods.id}}</td>
 									      <td>{{goods.goodsName}}</td>
 									      <td>{{goods.price}}</td>
@@ -110,7 +110,7 @@
 		                                  </td>		                                  
 		                                  <td class="text-center">
 											  <span ng-if="goods.auditStatus == 2">
-		                                 	  		<button type="button" class="btn bg-olive btn-xs" ng-click="selectIds.push(goods.id);updateIsMarketable(goods.isMarketable==0?1:0)">{{goods.isMarketable==0?"上架":"下架"}}</button>
+		                                 	  		<button type="button" class="btn bg-olive btn-xs" ng-click="updateOneIsMarketable(goods.id,goods.auditStatus,goods.isMarketable==0?1:0)">{{goods.isMarketable==0?"上架":"下架"}}</button>
 											  </span>
 		                                 	  <button type="button" class="btn bg-olive btn-xs">修改</button>
 		                                  </td>

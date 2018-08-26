@@ -297,41 +297,35 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,itemC
 		}
     }
 
-    //定义保存审核状态数值
-    $scope.auditStatus = 0;
-    //根据复选框勾选情况添加到数值,用来判断数组中是否都是通过审核
-    $scope.isAudit=function($event,auditStatus){
-        //判断复选框勾选状态
-        if($event.target.checked){
-            //勾选,添加到数值
-            $scope.auditStatus += auditStatus;
-        }else{
-            //取消勾选,移除数组
-            $scope.auditStatus -= auditStatus;
-        }
-    }
+
     //商家批量上下架商品
 	$scope.updateIsMarketable=function(isMarketable){
         if($scope.selectIds.length>0) {		//判断勾选框是否勾选
-			if($scope.auditStatus/2==$scope.selectIds.length) {		//判断勾选框是否包含未审核商品
-                goodsService.updateIsMarketable($scope.selectIds, isMarketable).success(
-                    function (response) {
-                        if (response.success) {//成功
-                            $scope.reloadList();//刷新列表
-                            $scope.selectIds = [];//清空ids集合
-                            $scope.auditStatus = 0;//清空审核状态值
-                        } else {
-                            alert(response.message);
-                            $scope.auditStatus = 0;//清空审核状态值
-                        }
-                    }
-                )
-            }else{
-				alert("勾选中包含未审核商品,请重新勾选");
-                $scope.selectIds = [];//清空ids集合
-			}
+			goodsService.updateIsMarketable($scope.selectIds, isMarketable).success(
+				function (response) {
+					if (response.success) {//成功
+						$scope.reloadList();//刷新列表
+						$scope.selectIds = [];//清空ids集合
+						$scope.auditStatus = 0;//清空审核状态值
+					} else {
+						alert(response.message);
+						$scope.auditStatus = 0;//清空审核状态值
+					}
+				}
+			)
         }else{
             alert("请至选择一个商品");
+		}
+	}
+
+	//单个商品上下架
+	$scope.updateOneIsMarketable = function(id,auditStatus,isMarketable){
+    	if(auditStatus == 2) {
+            $scope.selectIds = [id];
+            $scope.auditStatus = auditStatus;
+            $scope.updateIsMarketable(isMarketable);
+        }else{
+    		alert("该商品未通过审核")
 		}
 	}
 });	

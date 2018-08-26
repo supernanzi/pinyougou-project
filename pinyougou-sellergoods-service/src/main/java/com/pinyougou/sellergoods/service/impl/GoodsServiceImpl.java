@@ -11,7 +11,13 @@ import com.pinyougou.pojo.TbGoodsExample.Criteria;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +47,13 @@ public class GoodsServiceImpl implements GoodsService {
 
 	@Autowired
 	private TbItemMapper itemMapper;
+
+	@Autowired
+	private JmsTemplate jmsTemplate;	//操作ActiveMQ的spring-jms模板
+	@Autowired
+	private Destination addItemSolrDestination;		//上架商品,添加商品到solr
+	@Autowired
+	private Destination delItemSolrDestination;		//下架商品,从solr中删除商品
 	
 	/**
 	 * 查询全部
@@ -249,7 +262,7 @@ public class GoodsServiceImpl implements GoodsService {
 	 */
 	@Override
 	public void updateIsMarketable(Long[] ids, String isMarketable) {
-		for (Long id : ids) {
+		for (final Long id : ids) {
 			//通过id查询每一个商品
 			TbGoods goods = goodsMapper.selectByPrimaryKey(id);
 			//判断商品的审核状态
@@ -258,6 +271,23 @@ public class GoodsServiceImpl implements GoodsService {
 				goods.setIsMarketable(isMarketable);
 				//更新商品
 				goodsMapper.updateByPrimaryKey(goods);
+				//判断是否是上架
+				if("1".equals(isMarketable)){
+					jmsTemplate.send(addItemSolrDestination, new MessageCreator() {
+						@Override
+						public Message createMessage(Session session) throws JMSException {
+							return session.createTextMessage(id+"");
+						}
+					});
+				}else{	//下架从索引库删除商品
+					jmsTemplate.send(delItemSolrDestination, new MessageCreator() {
+						@Override
+						public Message createMessage(Session session) throws JMSException {
+							return session.createTextMessage(id+"");
+						}
+					});
+				}
+
 			}
 		}
 	}

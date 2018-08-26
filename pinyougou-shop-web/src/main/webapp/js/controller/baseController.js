@@ -21,7 +21,7 @@ app.controller("baseController",function($scope){
     //定义保存ID的数组
     $scope.selectIds = [];
     //根据复选框勾选情况添加到数组
-    $scope.updateSelection=function($event,id){
+    $scope.updateSelection=function($event,id,auditStatus){
         //判断复选框勾选状态
         if($event.target.checked){
             //勾选,添加到数组
@@ -35,10 +35,10 @@ app.controller("baseController",function($scope){
              *				属性1:start: number   元素索引
              *				属性2:deleteCount?: number  元素个数
              */
-            $scope.selectIds.splice(index,1);
         }
         //测试是否添加成功,取消是否移除
         //alert($scope.selectIds);
+        $scope.auditStatus -= auditStatus;
     }
 
     //字符串转换JSON格式
