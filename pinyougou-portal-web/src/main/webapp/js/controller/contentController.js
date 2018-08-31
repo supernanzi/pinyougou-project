@@ -88,6 +88,8 @@ app.controller('contentController' ,function($scope,$controller,contentService){
 		)
 	}
 
+
+	$scope.keywords = "";
 	$scope.toSearchHtml = function(){
 		location.href = "http://127.0.0.1:9104#?keywords="+$scope.keywords;
 	}

@@ -17,7 +17,7 @@
 	<script type="text/javascript" src="js/base.js"> </script>
 	<script type="text/javascript" src="js/service/contentService.js"> </script>
 	<script type="text/javascript" src="js/controller/baseController.js"> </script>
-	<script type="text/javascript" src="js/controller/contentController.js"> </script>
+	<script type="text/javascript" src="js/controller/userController.js"> </script>
 </head>
 
 <body ng-app="pinyougou" ng-controller="contentController" ng-init="findByCategoryId(1)">
@@ -72,7 +72,7 @@
 							<form action="" class="sui-form form-inline">
 								<!--searchAutoComplete-->
 								<div class="input-append">
-									<input type="text" id="autocomplete" type="text" class="input-error input-xxlarge" ng-model="keywords"/>
+									<input type="text" id="autocomplete" class="input-error input-xxlarge" ng-model="keywords"/>
 									<button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="toSearchHtml()">搜索</button>
 								</div>
 							</form>

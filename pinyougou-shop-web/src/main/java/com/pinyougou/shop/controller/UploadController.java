@@ -21,7 +21,7 @@ public class UploadController {
 
         try {
             //2.创建一个FastDFS的客户端
-            FastDFSClient dfsClient = new FastDFSClient("classpath:config/fdfs_client.conf");
+            FastDFSClient dfsClient = new FastDFSClient("classpath:properties/fdfs_client.conf");
             //3.执行上传
             String path = dfsClient.uploadFile(file.getBytes(), extName);
             //4.拼接返回的 url 和 ip 地址，拼装成完整的 url

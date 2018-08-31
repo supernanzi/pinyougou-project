@@ -1,8 +1,7 @@
 //搜索控制层
 app.controller("searchController",function($scope,searchService,$location){
 
-    //从主页接受搜索输入框数据
-    var keywords = $location.search()['keywords'];
+
 
     //定义搜索对象
     $scope.searchMap = {
@@ -16,12 +15,14 @@ app.controller("searchController",function($scope,searchService,$location){
         'pageNo':1,        //当前页
         'pageSize':60       //每页记录数
     };
+    //从主页接受搜索输入框数据
+    var keywords = $location.search()['keywords'];
     if(keywords!=null && keywords!=""){
         //门户网站输入了搜索关键字
         $scope.searchMap.keywords=keywords;
     }else{
         //门户网站未输入了搜索关键字
-        $scope.searchMap.keywords="手机";
+        $scope.searchMap.keywords='手机';
     }
     //搜索
     $scope.search = function(){
