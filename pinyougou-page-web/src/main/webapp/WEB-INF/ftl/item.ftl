@@ -12,9 +12,25 @@
     <link rel="stylesheet" type="text/css" href="css/pages-item.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-zoom.css" />
     <link rel="stylesheet" type="text/css" href="css/widget-cartPanelView.css" />
+ 	<script type="text/javascript" src="plugins/angularjs/angular.min.js"> </script>
+    <script type="text/javascript" src="js/base.js"> </script>
+	<script type="text/javascript" src="js/controller/itemController.js"> </script>
+	
+	<script type="text/javascript">
+		//获取sku商品spec数据对象
+		var spec=${tbItem.spec};
+		
+		//基于goodsId生成sku列表数据，商品的规格列表
+		var specList=[
+			<#list goods.itemList as item>
+			{'id': ${item.id?c},'spec':${item.spec}},
+			</#list>
+		];
+		
+	</script>
 </head>
 
-<body>
+<body ng-app="pinyougou" ng-controller="itemController" ng-init="num = 1">
 	<!-- 头部栏位 -->
 	<!--页面顶部-->
 <div id="nav-bottom">
@@ -27,15 +43,15 @@
 			<div class="crumb-wrap">
 				<ul class="sui-breadcrumb">
 					<li>
-						<a href="#">手机、数码、通讯</a>
+						<a href="#">${goods.categoryMap.category1Name}</a>
 					</li>
 					<li>
-						<a href="#">手机</a>
+						<a href="#">${goods.categoryMap.category2Name}</a>
 					</li>
 					<li>
-						<a href="#">Apple苹果</a>
+						<a href="#">${goods.categoryMap.category3Name}</a>
 					</li>
-					<li class="active">iphone 6S系类</li>
+					<li class="active">${goods.goods.goodsName}</li>
 				</ul>
 			</div>
 			<!--product-info-->
@@ -43,9 +59,16 @@
 				<div class="fl preview-wrap">
 					<!--放大镜效果-->
 					<div class="zoom">
+					<!-- [{"color":"蓝色","url":"http://192.168.25.133/group1/M00/00/00/wKgZhVt4CuWAPuNhAAA0JGtMezo302.jpg"},
+					{"color":"黑色","url":"http://192.168.25.133/group1/M00/00/00/wKgZhVt4Cu6ACzS4AABICtAkFEM963.jpg"}] -->
+					<#assign imageList=goods.goodsDesc.itemImages?eval>
+					
 						<!--默认第一个预览-->
+						
 						<div id="preview" class="spec-preview">
-							<span class="jqzoom"><img jqimg="img/_/b1.png" src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s1.png" /></span>
+						<#if (imageList?size>0)>
+							<span class="jqzoom"><img width="400px" height="400px" jqimg="${imageList[0].url}" src="${imageList[0].url}" /></span>
+						</#if>
 						</div>
 						<!--下方的缩略图-->
 						<div class="spec-scroll">
@@ -53,15 +76,9 @@
 							<!--左右按钮-->
 							<div class="items">
 								<ul>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="../../../../../../pinyougou-portal-web/src/main/webapp/img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
+								<#list imageList as image>
+									<li><img src="${image.url}" bimg="${image.url}" onmousemove="preview(this)" /></li>
+								</#list>
 								</ul>
 							</div>
 							<a class="next">&gt;</a>
@@ -70,9 +87,9 @@
 				</div>
 				<div class="fr itemInfo-wrap">
 					<div class="sku-name">
-						<h4>Apple iPhone 6s（A1700）64G玫瑰金色 移动通信电信4G手机</h4>
+						<h4>${tbItem.title}</h4>
 					</div>
-					<div class="news"><span>推荐选择下方[移动优惠购],手机套餐齐搞定,不用换号,每月还有花费返</span></div>
+					<div class="news"><span>${tbItem.sellPoint!goods.goods.caption}</span></div>
 					<div class="summary">
 						<div class="summary-wrap">
 							<div class="fl title">
@@ -80,7 +97,7 @@
 							</div>
 							<div class="fl price">
 								<i>¥</i>
-								<em>5299.00</em>
+								<em>${tbItem.price}</em>
 								<span>降价通知</span>
 							</div>
 							<div class="fr remark">
@@ -117,63 +134,28 @@
 						</div>
 					</div>
 					<div class="clearfix choose">
+					
+					<!-- [{"attributeValue":["移动3G","移动4G"],"attributeName":"网络"},
+					{"attributeValue":["64G","128G"],"attributeName":"机身内存"}] -->
+					
+					<#assign specList=goods.goodsDesc.specificationItems?eval>
 						<div id="specification" class="summary-wrap clearfix">
+							<#list specList as spec>
 							<dl>
 								<dt>
 									<div class="fl title">
-									<i>选择颜色</i>
+									<i>${spec.attributeName}</i>
 								</div>
 								</dt>
-								<dd><a href="javascript:;" class="selected">金色<span title="点击取消选择">&nbsp;</span>
-</a></dd>
-								<dd><a href="javascript:;">银色</a></dd>
-								<dd><a href="javascript:;">黑色</a></dd>
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-									<i>内存容量</i>
-								</div>
-								</dt>
-								<dd><a href="javascript:;" class="selected">16G<span title="点击取消选择">&nbsp;</span>
-</a></dd>
-								<dd><a href="javascript:;">64G</a></dd>
-								<dd><a href="javascript:;" class="locked">128G</a></dd>
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-									<i>选择版本</i>
-								</div>
-								</dt>
-								<dd><a href="javascript:;" class="selected">公开版<span title="点击取消选择">&nbsp;</span>
-</a></dd>
-								<dd><a href="javascript:;">移动版</a></dd>							
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-									<i>购买方式</i>
-								</div>
-								</dt>
-								<dd><a href="javascript:;" class="selected">官方标配<span title="点击取消选择">&nbsp;</span>
-</a></dd>
-								<dd><a href="javascript:;">移动优惠版</a></dd>	
-								<dd><a href="javascript:;"  class="locked">电信优惠版</a></dd>
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-									<i>套　　装</i>
-								</div>
-								</dt>
-								<dd><a href="javascript:;" class="selected">保护套装<span title="点击取消选择">&nbsp;</span>
-</a></dd>
-								<dd><a href="javascript:;"  class="locked">充电套装</a></dd>	
+								<!-- 当前商品规格数据：{"网络":"移动3G","机身内存":"64G"} -->
+								<!-- var spec={"网络":"移动3G","机身内存":"64G"}; -->
+								<!-- class="selected" -->
+								<#list spec.attributeValue as value>
 								
+								<dd><a href="javascript:;" ng-click="updateSpec('${spec.attributeName}','${value}')" class="{{isSelected('${spec.attributeName}','${value}')?'selected':''}}" >${value}<span title="点击取消选择">&nbsp;</span></a></dd>
+								</#list>
 							</dl>
-							
-							
+							</#list>
 						</div>
 						
 						
@@ -188,16 +170,16 @@
 							<div class="fl title">
 								<div class="control-group">
 									<div class="controls">
-										<input autocomplete="off" type="text" value="1" minnum="1" class="itxt" />
-										<a href="javascript:void(0)" class="increment plus">+</a>
-										<a href="javascript:void(0)" class="increment mins">-</a>
+										<input autocomplete="off" type="text" value="{{num}}" minnum="1" class="itxt" />
+										<a href="javascript:void(0)" ng-click="addNum(num+1)" class="increment plus">+</a>
+										<a href="javascript:void(0)" ng-click="addNum(num-1)" class="increment mins">-</a>
 									</div>
 								</div>
 							</div>
 							<div class="fl">
 								<ul class="btn-choose unstyled">
 									<li>
-										<a href="../../../../../../pinyougou-portal-web/src/main/webapp/cart.html" target="_blank" class="sui-btn  btn-danger addshopcar">加入购物车</a>
+										<a ng-click="addGoodsToCartList()" target="_blank" class="sui-btn  btn-danger addshopcar">加入购物车</a>
 									</li>
 								</ul>
 							</div>
@@ -208,15 +190,12 @@
 			<!--product-detail-->
 			<#include 'left.ftl'>
 			<!--like-->
-			<div class="clearfix"></div>
 			<#include 'like.ftl'>
 		</div>
 	</div>
 	<!-- 底部栏位 -->
 	<!--页面底部-->
-<div class="clearfix footer">
-	<#include 'foot.ftl'>
-</div>
+<#include 'foot.ftl'>
 <!--页面底部END-->
 	
 	<!--侧栏面板开始-->
@@ -356,7 +335,7 @@
 <!--侧栏面板结束-->
 	
 
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/plugins/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
 <script type="text/javascript">
 $(function(){
 	$("#service").hover(function(){
@@ -372,11 +351,11 @@ $(function(){
 
 })
 </script>
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/model/cartModel.js"></script>
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/plugins/jquery.easing/jquery.easing.min.js"></script>
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/plugins/sui/sui.min.js"></script>
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/plugins/jquery.jqzoom/jquery.jqzoom.js"></script>
-<script type="text/javascript" src="../../../../../../pinyougou-portal-web/src/main/webapp/js/plugins/jquery.jqzoom/zoom.js"></script>
+<script type="text/javascript" src="js/model/cartModel.js"></script>
+<script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
+<script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
+<script type="text/javascript" src="js/plugins/jquery.jqzoom/jquery.jqzoom.js"></script>
+<script type="text/javascript" src="js/plugins/jquery.jqzoom/zoom.js"></script>
 <script type="text/javascript" src="index/index.js"></script>
 </body>
 

@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public PageResult findPage(int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);		
-		Page<TbUser> page=   (Page<TbUser>) userMapper.selectByExample(null);
+		Page<TbUser> page=  (Page<TbUser>) userMapper.selectByExample(null);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 	public void createSmsCode(final String phone) {
 		//生成 6 位随机数
 		final String code = (long) (Math.random()*1000000)+"";
-		System.out.println("验证码："+code);
+		System.out.println(phone+"的验证码："+code);
 		//存入缓存
 		redisTemplate.boundValueOps(phone).set(code,15L,TimeUnit.MINUTES);
 		//发送消息到ActiveMQ
