@@ -25,4 +25,12 @@ app.service("cartService",function($http){
         return total;
     }
 
+    //根据用户名查询地址列表
+    this.findListByUserId = function(){
+        return $http.get("../address/findListByUserId.do");
+    }
+    //提交订单
+    this.submitOrder = function(order){
+        return $http.post("../order/add.do",order);
+    }
 })
